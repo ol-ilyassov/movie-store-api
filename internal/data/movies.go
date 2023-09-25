@@ -1,10 +1,13 @@
 package data
 
 import (
+	"database/sql"
 	"time"
 
 	"movie.api/internal/validator"
 )
+
+// * General definition.
 
 type Movie struct {
 	ID        int64     `json:"id"`
@@ -15,6 +18,8 @@ type Movie struct {
 	Genres    []string  `json:"genres,omitempty"`
 	Version   int32     `json:"version"`
 }
+
+// * Model validation.
 
 func ValidateMovie(v *validator.Validator, movie *Movie) {
 	v.Check(movie.Title != "", "title", "must be provided")
@@ -28,4 +33,31 @@ func ValidateMovie(v *validator.Validator, movie *Movie) {
 	v.Check(len(movie.Genres) >= 1, "genres", "must contain at least 1 genre")
 	v.Check(len(movie.Genres) <= 5, "genres", "must not contain more than 5 genres")
 	v.Check(validator.Unique(movie.Genres), "genres", "must not contain duplicate values")
+}
+
+// * CRUD.
+
+// MovieModel
+type MovieModel struct {
+	DB *sql.DB
+}
+
+// Insert
+func (m MovieModel) Insert(movie *Movie) error {
+	return nil
+}
+
+// Get
+func (m MovieModel) Get(id int64) (*Movie, error) {
+	return nil, nil
+}
+
+// Update
+func (m MovieModel) Update(movie *Movie) error {
+	return nil
+}
+
+// Delete
+func (m MovieModel) Delete(id int64) error {
+	return nil
 }
