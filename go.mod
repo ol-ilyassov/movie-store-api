@@ -1,3 +1,3 @@
 module movie.api
 
-go 1.20
+go 1.21.1
