@@ -5,6 +5,8 @@ import (
 	"time"
 
 	"movie.api/internal/validator"
+
+	"github.com/lib/pq"
 )
 
 // * General definition.
@@ -44,7 +46,14 @@ type MovieModel struct {
 
 // Insert
 func (m MovieModel) Insert(movie *Movie) error {
-	return nil
+	query := `
+INSERT INTO movies (title, year, runtime, genres)
+VALUES ($1, $2, $3, $4)
+RETURNING id, created_at, version`
+
+	args := []any{movie.Title, movie.Year, movie.Runtime, pq.Array(movie.Genres)}
+
+	return m.DB.QueryRow(query, args...).Scan(&movie.ID, &movie.CreatedAt, &movie.Version)
 }
 
 // Get
