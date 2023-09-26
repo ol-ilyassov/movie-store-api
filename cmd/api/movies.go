@@ -99,6 +99,16 @@ func (app *application) updateMovieHandler(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	// Further dev => optimistic locking:
+	// If the request contains a X-Expected-Version header, verify that the movie
+	// version in the database matches the expected version specified in the header.
+	// if r.Header.Get("X-Expected-Version") != "" {
+	// 	if strconv.FormatInt(int64(movie.Version), 32) != r.Header.Get("X-Expected-Version") {
+	// 		app.editConflictResponse(w, r)
+	// 		return
+	// 	}
+	// }
+
 	// * Partial Update setup
 	var input struct {
 		Title   *string       `json:"title"`
@@ -133,7 +143,12 @@ func (app *application) updateMovieHandler(w http.ResponseWriter, r *http.Reques
 	}
 	err = app.models.Movies.Update(movie)
 	if err != nil {
-		app.serverErrorResponse(w, r, err)
+		switch {
+		case errors.Is(err, data.ErrEditConflict):
+			app.editConflictResponse(w, r)
+		default:
+			app.serverErrorResponse(w, r, err)
+		}
 		return
 	}
 
