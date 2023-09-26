@@ -11,6 +11,7 @@ GO_PATH := ~/go/bin/
 
 .PHONY: run
 run:
+	go run ./cmd/api
 	@echo "- run finished"
 
 .PHONY: migrate/version
