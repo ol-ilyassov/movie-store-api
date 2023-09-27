@@ -1,0 +1,82 @@
+package data
+
+import (
+	"math"
+	"strings"
+
+	"movie.api/internal/validator"
+)
+
+// Filters
+type Filters struct {
+	Page         int
+	PageSize     int
+	Sort         string
+	SortSafelist []string // holds supported sort values.
+}
+
+func ValidateFilters(v *validator.Validator, f Filters) {
+	// validate for sensible values.
+	v.Check(f.Page > 0, "page", "must be greater than zero")
+	v.Check(f.Page <= 10_000_000, "page", "must be a maximum of 10 million")
+	v.Check(f.PageSize > 0, "page_size", "must be greater than zero")
+	v.Check(f.PageSize <= 100, "page_size", "must be a maximum of 100")
+
+	// Check that the sort parameter matches a value in the safelist.
+	v.Check(validator.PermittedValue(f.Sort, f.SortSafelist...), "sort", "invalid sort value")
+}
+
+// limit returns number of records.
+func (f Filters) limit() int {
+	return f.PageSize
+}
+
+// offset returns shift of records.
+func (f Filters) offset() int {
+	return (f.Page - 1) * f.PageSize
+}
+
+// sortColumn returns column if appropriate and trims prefix.
+func (f Filters) sortColumn() string {
+	for _, safeValue := range f.SortSafelist {
+		if f.Sort == safeValue {
+			return strings.TrimPrefix(f.Sort, "-")
+		}
+	}
+	// could be implemented as return error.
+	// by implementation, it is already handled by ValidateFilters().
+	// this is a sensible failsafe to help stop a SQL injection attack occurring.
+	panic("unsafe sort parameter: " + f.Sort)
+}
+
+// sortDirection returns sort order keyword depending on sort value prefix.
+func (f Filters) sortDirection() string {
+	if strings.HasPrefix(f.Sort, "-") {
+		return "DESC"
+	}
+	return "ASC"
+}
+
+// Metada
+type Metadata struct {
+	CurrentPage  int `json:"current_page,omitempty"`
+	PageSize     int `json:"page_size,omitempty"`
+	FirstPage    int `json:"first_page,omitempty"`
+	LastPage     int `json:"last_page,omitempty"`
+	TotalRecords int `json:"total_records,omitempty"`
+}
+
+// calculateMetadata
+func calculateMetadata(totalRecords, page, pageSize int) Metadata {
+	if totalRecords == 0 {
+		// Note that we return an empty Metadata struct if there are no records.
+		return Metadata{}
+	}
+	return Metadata{
+		CurrentPage:  page,
+		PageSize:     pageSize,
+		FirstPage:    1,
+		LastPage:     int(math.Ceil(float64(totalRecords) / float64(pageSize))),
+		TotalRecords: totalRecords,
+	}
+}
