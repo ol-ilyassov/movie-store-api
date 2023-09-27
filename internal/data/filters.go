@@ -25,6 +25,16 @@ func ValidateFilters(v *validator.Validator, f Filters) {
 	v.Check(validator.PermittedValue(f.Sort, f.SortSafelist...), "sort", "invalid sort value")
 }
 
+// limit returns number of records.
+func (f Filters) limit() int {
+	return f.PageSize
+}
+
+// offset returns shift of records.
+func (f Filters) offset() int {
+	return (f.Page - 1) * f.PageSize
+}
+
 // sortColumn returns column if appropriate and trims prefix.
 func (f Filters) sortColumn() string {
 	for _, safeValue := range f.SortSafelist {
