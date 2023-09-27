@@ -160,12 +160,13 @@ func (m MovieModel) Delete(id int64) error {
 
 // GetAll
 func (m MovieModel) GetAll(title string, genres []string, filters Filters) ([]*Movie, error) {
+	// "to_tsvector" and "plainto_tsquery" used for full-text search.
 	query := `
-	SELECT id, created_at, title, year, runtime, genres, version
-	FROM movies
-	WHERE (LOWER(title) = LOWER($1) OR $1 = '')
-	AND (genres @> $2 OR $2 = '{}')
-	ORDER BY id`
+SELECT id, created_at, title, year, runtime, genres, version
+FROM movies
+WHERE (to_tsvector('simple', title) @@ plainto_tsquery('simple', $1) OR $1 = '')
+AND (genres @> $2 OR $2 = '{}')
+ORDER BY id`
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -175,7 +176,6 @@ func (m MovieModel) GetAll(title string, genres []string, filters Filters) ([]*M
 		return nil, err
 	}
 	defer rows.Close()
-
 
 	movies := []*Movie{}
 	for rows.Next() {
@@ -199,4 +199,4 @@ func (m MovieModel) GetAll(title string, genres []string, filters Filters) ([]*M
 		return nil, err
 	}
 	return movies, nil
-	}
+}
