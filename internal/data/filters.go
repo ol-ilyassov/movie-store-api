@@ -1,6 +1,10 @@
 package data
 
-import "movie.api/internal/validator"
+import (
+	"strings"
+
+	"movie.api/internal/validator"
+)
 
 // Filters
 type Filters struct {
@@ -19,4 +23,25 @@ func ValidateFilters(v *validator.Validator, f Filters) {
 
 	// Check that the sort parameter matches a value in the safelist.
 	v.Check(validator.PermittedValue(f.Sort, f.SortSafelist...), "sort", "invalid sort value")
+}
+
+// sortColumn returns column if appropriate and trims prefix.
+func (f Filters) sortColumn() string {
+	for _, safeValue := range f.SortSafelist {
+		if f.Sort == safeValue {
+			return strings.TrimPrefix(f.Sort, "-")
+		}
+	}
+	// could be implemented as return error.
+	// by implementation, it is already handled by ValidateFilters().
+	// this is a sensible failsafe to help stop a SQL injection attack occurring.
+	panic("unsafe sort parameter: " + f.Sort)
+}
+
+// sortDirection returns sort order keyword depending on sort value prefix.
+func (f Filters) sortDirection() string {
+	if strings.HasPrefix(f.Sort, "-") {
+		return "DESC"
+	}
+	return "ASC"
 }
