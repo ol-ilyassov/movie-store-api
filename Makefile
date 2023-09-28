@@ -1,5 +1,5 @@
 ## [command]        # [definition]
-## run              # -
+## run              # runs application
 ## migrate/version  # prints migration tool version
 ## migrate/up       # runs up migrations
 ## migrate/down     # runs down migrations
