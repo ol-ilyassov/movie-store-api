@@ -149,3 +149,22 @@ func (app *application) readInt(qs url.Values, key string, defaultValue int, v *
 	// Otherwise, return the converted integer value.
 	return i
 }
+
+// background a helper method to recover on separate goroutine.
+func (app *application) background(fn func()) {
+	app.wg.Add(1)
+
+	go func() {
+		// add waitGroup usage for correct Graceful Shutdown
+		defer app.wg.Done()
+
+		// Recover any panic.
+		defer func() {
+			if err := recover(); err != nil {
+				app.logger.Error(fmt.Sprintf("%v", err))
+			}
+		}()
+		// execute passed func.
+		fn()
+	}()
+}
