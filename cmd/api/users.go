@@ -51,13 +51,13 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	// send mail notification
-	go func() {
+	// panic recovery on send email goroutine.
+	app.background(func() {
 		err = app.mailer.Send(user.Email, "user_welcome.tmpl", user)
 		if err != nil {
 			app.logger.Error(err.Error())
 		}
-	}()
+	})
 
 	// StatusCreated => StatusAccepted. because, go routine mailing is still in process.
 	err = app.writeJSON(w, http.StatusAccepted, envelope{"user": user}, nil)
