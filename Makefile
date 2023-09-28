@@ -27,3 +27,8 @@ migrate/up:
 migrate/down: 
 	${GO_PATH}/migrate -path=./migrations -database=${DB_DSN} down
 	@echo "- migrate/down finished"
+
+.PHONY: migrate/create
+migrate/create:
+	${GO_PATH}/migrate create -seq -ext=.sql -dir=./migrations ${name}
+	@echo "- migrate/create finished"
