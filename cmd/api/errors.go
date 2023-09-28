@@ -55,7 +55,13 @@ func (app *application) editConflictResponse(w http.ResponseWriter, r *http.Requ
 	app.errorResponse(w, r, http.StatusConflict, message)
 }
 
-// failedValidationResponse() method will be used to send a 422 Unprocessable Entity status code and JSON response with errors set to the client.
+// failedValidationResponse method will be used to send a 422 Unprocessable Entity status code and JSON response with errors set to the client.
 func (app *application) failedValidationResponse(w http.ResponseWriter, r *http.Request, errors map[string]string) {
 	app.errorResponse(w, r, http.StatusUnprocessableEntity, errors)
+}
+
+// rateLimitExceededResponse method will be used to send a 429 Too Many Requests status code and JSON response to the client.
+func (app *application) rateLimitExceededResponse(w http.ResponseWriter, r *http.Request) {
+	message := "rate limit exceeded"
+	app.errorResponse(w, r, http.StatusTooManyRequests, message)
 }
