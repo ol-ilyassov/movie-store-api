@@ -185,3 +185,41 @@ func (app *application) requirePermission(code string, next http.HandlerFunc) ht
 	// Wraps chain, to avoid extra definition to call already required middlewares.
 	return app.requireActivatedUser(fn)
 }
+
+// enableCORS
+func (app *application) enableCORS(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Add("Vary", "Origin")
+		w.Header().Add("Vary", "Access-Control-Request-Method")
+
+		origin := r.Header.Get("Origin")
+		if origin != "" {
+			for i := range app.config.cors.trustedOrigins {
+				if origin == app.config.cors.trustedOrigins[i] {
+					w.Header().Set("Access-Control-Allow-Origin", origin)
+
+					// check for preflight request:
+					if r.Method == http.MethodOptions && r.Header.Get("Access-Control-Request-Method") != "" {
+						// necessary preflight response headers:
+						w.Header().Set("Access-Control-Allow-Methods", "OPTIONS, PUT, PATCH, DELETE")
+						w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type")
+
+						// w.Header().Set("Access-Control-MaxAge", "60") // caching
+						w.WriteHeader(http.StatusOK)
+						return
+					}
+					break
+				}
+			}
+		}
+		next.ServeHTTP(w, r)
+	})
+	// must: app.config.cors.trustedOrigins =/= null
+}
+
+// Key point about "Vary":
+// If your code makes a decision about what to return based on the content of a request header,
+// you should include that header name in your Vary response header — even if the request
+// didn’t include that header.
+
+// Preflight request marks: HTTP method OPTIONS, an Origin header, and an Access-Control-Request-Method.
