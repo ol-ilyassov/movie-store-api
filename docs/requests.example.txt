@@ -1,0 +1,13 @@
+## Register user account:
+# BODY='{"name": "Grace Smith", "email": "grace@example.com", "password": "pa55word"}'
+# curl -d "$BODY" localhost:8100/v1/users
+
+## Activate user account:
+# curl -d '{"token": "H4Y7RKHKM5UVI2UQEXRA5VR5HA"}' -X PUT localhost:8100/v1/users/activated
+
+## Authenticate user:
+# BODY='{"email": "grace@example.com", "password": "pa55word"}'
+# curl -d "$BODY" localhost:8100/v1/tokens/authentication
+
+## Use movies endpoint:
+# curl -H "Authorization: Bearer JULHWRV6RVFYOI2SNOF2L2M5DI" localhost:8100/v1/movies
