@@ -52,6 +52,19 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+	err = app.models.Permissions.AddForUser(user.ID, "movies:read")
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
+	// ! temp approach: already grand write permission.
+	err = app.models.Permissions.AddForUser(user.ID, "movies:write")
+	if err != nil {
+		app.serverErrorResponse(w, r, err)
+		return
+	}
+
 	// generate activation token.
 	token, err := app.models.Tokens.New(user.ID, 3*24*time.Hour, data.ScopeActivation)
 	if err != nil {
