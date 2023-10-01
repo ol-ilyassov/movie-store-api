@@ -63,7 +63,7 @@ func main() {
 	flag.StringVar(&cfg.env, "env", "development", "environment (development|staging|production)")
 
 	// os.Getenv("MOVIES.API_DB_DSN")
-	flag.StringVar(&cfg.db.dsn, "db-dsn", "postgres://movies_api:pa55word@localhost/movies_api", "PostgreSQL DSN")
+	flag.StringVar(&cfg.db.dsn, "db-dsn", "", "PostgreSQL DSN")
 	flag.IntVar(&cfg.db.maxOpenConns, "db-max-open-conns", 25, "PostgreSQL max open connections")
 	flag.IntVar(&cfg.db.maxIdleConns, "db-max-idle-conns", 25, "PostgreSQL max idle connections")
 	flag.DurationVar(&cfg.db.maxIdleTime, "db-max-idle-time", 15*time.Minute, "PostgreSQL max connection idle time")

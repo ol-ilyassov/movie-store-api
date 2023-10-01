@@ -1,5 +1,5 @@
-DB_DSN := postgres://movies_api:pa55word@localhost/movies_api
 GO_PATH := ~/go/bin/
+MOVIES_API_DB_DSN := postgres://movies_api:pa55word@localhost/movies_api
 
 .SILENT:
 
@@ -24,7 +24,7 @@ confirm:
 ## run: run the cmd/api application
 .PHONY: run
 run:
-	go run ./cmd/api
+	go run ./cmd/api -db-dsn=${MOVIES_API_DB_DSN}
 	@echo "- run finished"
 
 # ------------
