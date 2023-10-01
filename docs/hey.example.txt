@@ -1,0 +1,7 @@
+## hey cmd tool install:
+# go install github.com/rakyll/hey@latest
+
+## run command with load:
+# BODY='{"email": "alice@example.com", "password": "pa55word"}'
+# ~/go/bin/hey -d "$BODY" -m "POST" http://localhost:8100/v1/tokens/authentication
+# resoonse: 
