@@ -1,4 +1,5 @@
 GO_PATH := ~/go/bin/
+# better approach: $HOME/.profile
 MOVIES_API_DB_DSN := postgres://movies_api:pa55word@localhost/movies_api
 
 .SILENT:
