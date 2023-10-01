@@ -56,3 +56,21 @@ migrate/create:
 	@echo "- migrate/create finished"
 
 # ------------
+# Quality Control:
+# ------------
+
+## audit: tidy dependencies and format, vet and test all code
+.PHONY: audit
+audit:
+	go mod tidy
+	go mod verify
+	@echo 'Formatting code...'
+	go fmt ./...
+	@echo 'Vetting code...'
+	go vet ./...
+	${GO_PATH}/staticcheck ./...
+	@echo 'Running tests...'
+	go test -race -vet=off ./...
+	@echo "- audit finished"
+
+# ------------
