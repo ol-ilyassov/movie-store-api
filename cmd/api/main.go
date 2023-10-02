@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"expvar"
 	"flag"
+	"fmt"
 	"log/slog"
 	"os"
 	"runtime"
@@ -14,11 +15,14 @@ import (
 
 	"movie.api/internal/data"
 	"movie.api/internal/mailer"
+	"movie.api/internal/vsc"
 
 	_ "github.com/lib/pq"
 )
 
-const version = "1.0.0"
+var (
+	version = vsc.Version()
+)
 
 type config struct {
 	port int
@@ -83,7 +87,14 @@ func main() {
 		return nil
 	})
 
+	displayVersion := flag.Bool("version", false, "Display version and exit")
+
 	flag.Parse()
+
+	if *displayVersion {
+		fmt.Printf("Version:\t%s\n", version)
+		os.Exit(0)
+	}
 
 	// * Logger setup.
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
