@@ -1,5 +1,6 @@
 GO_PATH := ~/go/bin/
 # better approach: $HOME/.profile
+# it will be used as env variable.
 MOVIES_API_DB_DSN := postgres://movies_api:pa55word@localhost/movies_api
 BINARY_NAME := movie-store
 
@@ -87,6 +88,24 @@ vendor:
 	@echo 'Vendoring dependencies...'
 	go mod vendor
 	@echo "- vendor finished"
+
+# ------------
+# Production commands:
+# ------------
+
+production_host_ip := ""
+
+## production/connect: connect to the production server
+.PHONY: production/connect
+production/connect:
+	ssh moviestore@${production_host_ip}
+
+## production/deploy/api: deploy the api to production
+.PHONY: production/deploy
+production/deploy:
+	rsync -P ./bin/linux_amd64/${BINARY_NAME} moviestore@${production_host_ip}:~
+	rsync -rP --delete ./migrations moviestore@${production_host_ip}:~
+	ssh -t moviestore@${production_host_ip} 'migrate -path ~/migrations -database $$MOVIES_API_DB_DSN up'
 
 # ------------
 # Additional Comments section:
