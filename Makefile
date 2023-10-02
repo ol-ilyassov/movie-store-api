@@ -105,7 +105,13 @@ production/connect:
 production/deploy:
 	rsync -P ./bin/linux_amd64/${BINARY_NAME} moviestore@${production_host_ip}:~
 	rsync -rP --delete ./migrations moviestore@${production_host_ip}:~
-	ssh -t moviestore@${production_host_ip} 'migrate -path ~/migrations -database $$MOVIES_API_DB_DSN up'
+	rsync -P ./remote/production/movie-store.service moviestore@${production_host_ip}:~
+	ssh -t moviestore@${production_host_ip} '\
+		migrate -path ~/migrations -database $$MOVIES_API_DB_DSN up \
+		&& sudo mv ~/movie-store.service /etc/systemd/system/ \
+		&& sudo systemctl enable api \
+		&& sudo systemctl restart api \
+	'
 
 # ------------
 # Additional Comments section:
