@@ -1,6 +1,7 @@
 GO_PATH := ~/go/bin/
 # better approach: $HOME/.profile
 MOVIES_API_DB_DSN := postgres://movies_api:pa55word@localhost/movies_api
+BINARY_NAME := movie-store
 
 .SILENT:
 
@@ -27,6 +28,12 @@ confirm:
 run:
 	go run ./cmd/api -db-dsn=${MOVIES_API_DB_DSN}
 	@echo "- run finished"
+
+## build: build the cmd/api application
+.PHONY: build
+build:
+	GOOS=linux GOARCH=amd64 go build -ldflags='-s' -o=./bin/linux_amd64/${BINARY_NAME} ./cmd/api
+	@echo "- build finished"
 
 # ------------
 # Migration commands:
@@ -82,3 +89,9 @@ vendor:
 	@echo "- vendor finished"
 
 # ------------
+# Additional Comments section:
+# ------------
+
+# - {-ldflags='-s} flag in build command, removes DWARF information and symbol table from the binary.
+# - {-a} flag in build command, forces all packages to be rebuilt.
+# - {go clean -cache} command, removes everything from the build cache.
