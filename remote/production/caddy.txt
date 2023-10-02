@@ -1,0 +1,12 @@
+
+# in case of problems with TLS certificates:
+{
+    email you@example.com
+}
+
+
+# Example with domain name:
+example_domain.com {
+    respond /debug/* "Not Permitted" 403
+    reverse_proxy localhost:4000
+}
