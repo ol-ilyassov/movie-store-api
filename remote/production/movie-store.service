@@ -1,0 +1,24 @@
+[Unit]
+Description=Movie Store API service
+After=postgresql.service
+After=network-online.target
+Wants=network-online.target
+
+# Rate limiter: limit on 5 tries to restart in 600 seconds.
+StartLimitIntervalSec=600
+StartLimitBurst=5
+
+[Service]
+Type=exec
+User=moviestore
+Group=moviestore
+EnvironmentFile=/etc/environment
+WorkingDirectory=/home/moviestore
+ExecStart=/home/moviestore/movie-store -port=8100 -db-dsn=${MOVIES_API_DB_DSN} -env=production
+
+# Action on failure: will be catched by rate limiter.
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
