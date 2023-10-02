@@ -4,16 +4,17 @@ import (
 	"errors"
 	"expvar"
 	"fmt"
-	"net"
 	"net/http"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
 
-	"golang.org/x/time/rate"
 	"movie.api/internal/data"
 	"movie.api/internal/validator"
+
+	"github.com/tomasen/realip"
+	"golang.org/x/time/rate"
 )
 
 // recoverPanic recovers work and send error response.
@@ -59,11 +60,13 @@ func (app *application) rateLimit(next http.Handler) http.Handler {
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if app.config.limiter.enabled {
-			ip, _, err := net.SplitHostPort(r.RemoteAddr) // clients ip extraction.
-			if err != nil {
-				app.serverErrorResponse(w, r, err)
-				return
-			}
+			// ip, _, err := net.SplitHostPort(r.RemoteAddr) // clients ip extraction.
+			// if err != nil {
+			// 	app.serverErrorResponse(w, r, err)
+			// 	return
+			// }
+
+			ip := realip.FromRequest(r) // clients ip from Header X-Forward header under proxy.
 
 			mu.Lock()
 			if _, found := clients[ip]; !found {
